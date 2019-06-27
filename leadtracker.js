@@ -32,7 +32,7 @@ function startApp() {
         }
     ]).then(function(user){
         if (user.username === userName[0]){
-            if (user.loginPassword === passWord[0]){
+            if (user.loginPassword === password[0]){
                 mainMenu();
             }
             else {
@@ -47,6 +47,15 @@ function startApp() {
     });
 };
 
+function finalUpdate(input, data) {
+    console.log("Updating goal...\n");
+    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+        {
+
+        }
+    ])
+}
+
 function updateGoal() {
     inquirer.prompt([
         {
@@ -54,6 +63,10 @@ function updateGoal() {
             name: 'deptGoal',
             message: 'Select the Department you would like to Update:',
             list: ["D21/22", "D23/59", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D01"]
+        },
+        {
+            type: 'list',
+            name: 'week',
         },
         {
             type: 'input',
@@ -64,6 +77,16 @@ function updateGoal() {
         connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = ?", [input.deptGoal], function(err, data) {
             if (err) throw err;
 
+            if (data[0].departmens) {
+                if (!Number(input.updateGoal)) {
+                    console.log("The number that you entered in invalid.");
+
+                    updateGoal();
+                }
+                else {
+                    finalUpdate(input, data);
+                }
+            }
         })
     })
 };
