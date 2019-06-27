@@ -11,7 +11,7 @@ CREATE TABLE july_2019_leadsandsales(
     week_two_dept_leads INT(15),
     week_three_dept_leads INT(15),
     week_four_dept_leads INT(15),
-    made_goals VARCHAR(5) NOT NULL,
+    made_goals VARCHAR(5),
 	exceeds_goals VARCHAR(5)
 );
 

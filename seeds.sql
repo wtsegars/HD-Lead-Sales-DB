@@ -2,7 +2,7 @@ INSERT INTO july_2019_leadsandsales (departments, dept_weekly_goals)
 VALUES ("D21/22", 2);
 
 INSERT INTO july_2019_leadsandsales (departments, dept_weekly_goals)
-VALUES ("D23", 3);
+VALUES ("D23/59", 3);
 
 INSERT INTO july_2019_leadsandsales (departments, dept_weekly_goals)
 VALUES ("D24", 1);
