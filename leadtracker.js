@@ -65,6 +65,10 @@ function finalUpdate(input, data) {
     )
 };
 
+function finalLeadUpdate(select, input) {
+    console.log("Updating lead ...\n");
+}
+
 function updateGoal() {
     inquirer.prompt([
         {
@@ -82,7 +86,7 @@ function updateGoal() {
         connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = ?", [input.deptGoal], function(err, data) {
             if (err) throw err;
 
-            if (data[0].departmens) {
+            if (data[0].departments) {
                 if (!Number(input.updateGoal)) {
                     console.log("The number that you entered in invalid.");
 
@@ -117,7 +121,20 @@ function updateLead() {
         }
     ]).then(function(select, input) {
         if (select.week === "Week1") {
-            connection.query("SELECT week_one_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead])
+            connection.query("SELECT week_one_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead], function(err, data) {
+                if (err) throw err;
+
+                if (data[0].departments) {
+                    if (!Number(input.updateGoal)) {
+                        console.log("The number that you entered in invalid.");
+
+                        updateLead();
+                    }
+                    else {
+                        finalLeadUpdate(select, input);
+                    }
+                }
+            })
         }
     })
 }
