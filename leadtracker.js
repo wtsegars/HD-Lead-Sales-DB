@@ -51,10 +51,19 @@ function finalUpdate(input, data) {
     console.log("Updating goal...\n");
     connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
         {
-
+            department_weekly_goals: input.updateGoal
+        },
+        {
+            departments: data.deptGoal
         }
-    ])
-}
+    ],
+        function(err) {
+            if (err) throw err;
+            console.log("Goal Updated.\n");
+            mainMenu();
+        }
+    )
+};
 
 function updateGoal() {
     inquirer.prompt([
@@ -63,10 +72,6 @@ function updateGoal() {
             name: 'deptGoal',
             message: 'Select the Department you would like to Update:',
             list: ["D21/22", "D23/59", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D01"]
-        },
-        {
-            type: 'list',
-            name: 'week',
         },
         {
             type: 'input',
@@ -90,6 +95,32 @@ function updateGoal() {
         })
     })
 };
+
+function updateLead() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'deptLead',
+            message: 'Select the Department you would like to Update:',
+            list: ["D21/22", "D23/59", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D01"]
+        },
+        {
+            type: 'list',
+            name: 'week',
+            message: 'Which week would you like to update?',
+            list: ["Week1", "Week2", "Week3", "Week4"]
+        },
+        {
+            type: 'input',
+            name: 'updateLead',
+            message: 'What would you like to update the Lead to?'
+        }
+    ]).then(function(select, input) {
+        if (select.week === "Week1") {
+            connection.query("SELECT week_one_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead])
+        }
+    })
+}
 
 function mainMenu() {
     inquirer.prompt([
@@ -200,7 +231,10 @@ function mainMenu() {
             })
         }
         else if (option.menuOptions === "Update Lead Goal by Department") {
-        updateGoal();
+            updateGoal();
+        }
+        else if (option.menuOptions === "Update Actual Leads by Department") {
+            updateLead();
         }
     })
 }
