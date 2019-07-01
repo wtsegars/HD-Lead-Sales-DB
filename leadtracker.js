@@ -117,7 +117,25 @@ function finalLeadUpdateWeek3(select, input) {
             mainMenu();
         }
     )
-}
+};
+
+function finalLeadUpdateWeek4(select, input) {
+    console.log("Updating lead ...\n");
+    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?",  [
+        {
+            week_four_dept_leads: select.deptLead
+        },
+        {
+            departments: input.updateLead
+        }
+    ],
+        function(err) {
+            if (err) throw err;
+            console.log("Lead Updated!\n");
+            mainMenu();
+        }
+    )
+};
 
 function updateGoal() {
     inquirer.prompt([
@@ -218,7 +236,44 @@ function updateLead() {
                 }
             })
         }
+        else if (select.week === "Week4") {
+            connection.query("SELECT week_three_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.spetLead], function(err, sata) {
+                if (err) throw err;
+
+                if (data[0].departments) {
+                    if (!Number(input.updateGoal)) {
+                        console.log("The number that you entered in invalid.");
+
+                        updateLead();
+                    }
+                    else {
+                        finalLeadUpdateWeek4(select, input);
+                    }
+                }
+            })
+        }
     })
+};
+
+function addMonth() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'monthChoice',
+            message: 'What month would you like to add?',
+            choices: ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        },
+        {
+            type: 'input',
+            name: 'yearChoice',
+            message: 'What year would you like to add?'
+        },
+        {
+            type: 'confirm',
+            name: 'confirmChoice',
+            message: ''
+        }
+    ])
 }
 
 function mainMenu() {
@@ -334,6 +389,9 @@ function mainMenu() {
         }
         else if (option.menuOptions === "Update Actual Leads by Department") {
             updateLead();
+        }
+        else if (option.menuOptions === "Add Month") {
+            addMonth();
         }
     })
 }
