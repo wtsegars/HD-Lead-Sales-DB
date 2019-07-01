@@ -65,8 +65,58 @@ function finalUpdate(input, data) {
     )
 };
 
-function finalLeadUpdate(select, input) {
+function finalLeadUpdateWeek1(select, input) {
     console.log("Updating lead ...\n");
+    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+        {
+            week_one_dept_leads: select.deptLead
+        },
+        {
+            departments: input.updateLead
+        }
+    ],
+        function(err) {
+            if (err) throw err;
+            console.log("Lead Updated!\n");
+            mainMenu();
+        }
+    )
+};
+
+function finalLeadUpdateWeek2(select, input) {
+    console.log("Updating lead ...\n");
+    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+        {
+            week_two_dept_leads: select.deptLead
+        },
+        {
+            departments: input.updateLead
+        }
+    ],
+        function(err) {
+            if (err) throw err;
+            console.log("Lead Updated!\n");
+            mainMenu();
+        }
+    )
+};
+
+function finalLeadUpdateWeek3(select, input) {
+    console.log("Updating lead ...\n");
+    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+        {
+            week_three_dept_leads: select.deptLead
+        },
+        {
+            departments: input.updateLead
+        }
+    ],
+        function(err) {
+            if (err) throw err;
+            console.log("Lead Updated!\n");
+            mainMenu();
+        }
+    )
 }
 
 function updateGoal() {
@@ -131,7 +181,39 @@ function updateLead() {
                         updateLead();
                     }
                     else {
-                        finalLeadUpdate(select, input);
+                        finalLeadUpdateWeek1(select, input);
+                    }
+                }
+            })
+        }
+        else if (select.week === "Week2") {
+            connection.query("SELECT week_two_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead], function(err, data) {
+                if (err) throw err;
+
+                if (data[0].departments) {
+                    if (!Number(input.updateGoal)) {
+                        console.log("The number that you entered in invalid.");
+
+                        updateLead();
+                    }
+                    else {
+                        finalLeadUpdateWeek2(select, input);
+                    }
+                }
+            })
+        }
+        else if (select.week === "Week3") {
+            connection.query("SELECT week_three_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead], function(err, data) {
+                if (err) throw err;
+
+                if (data[0].departments) {
+                    if (!Number(input.updateGoal)) {
+                        console.log("The number that you entered in invalid.");
+
+                        updateLead();
+                    }
+                    else {
+                        finalLeadUpdateWeek3(select, input);
                     }
                 }
             })
