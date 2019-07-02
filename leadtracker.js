@@ -267,13 +267,25 @@ function addMonth() {
             type: 'input',
             name: 'yearChoice',
             message: 'What year would you like to add?'
-        },
-        {
-            type: 'confirm',
-            name: 'confirmChoice',
-            message: ''
         }
-    ])
+    ]).then(function(choice, input) {
+        inquirer.prompt([
+            {
+                type: 'checkbox',
+                name: 'choiceConfirm',
+                message: 'Is the month: ' + choice.monthChoice + ' and year: ' + input.yearChoice + ' correct?',
+                choices: ["Yes", "No"],
+                default: 'Yes'
+             }
+        ]).then(function(confirm) {
+            if (confirm.choiceConfirm === "Yes") {
+
+            } 
+            else {
+                addMonth();
+            }
+        })
+    })
 }
 
 function mainMenu() {
