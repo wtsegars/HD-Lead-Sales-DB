@@ -237,7 +237,7 @@ function updateLead() {
             })
         }
         else if (select.week === "Week4") {
-            connection.query("SELECT week_three_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.spetLead], function(err, sata) {
+            connection.query("SELECT week_three_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.spetLead], function(err, data) {
                 if (err) throw err;
 
                 if (data[0].departments) {
@@ -281,7 +281,7 @@ function addMonth() {
             if (confirm.choiceConfirm === "Yes") {
                 console.log("Creating month...\n");
 
-                connection.query(`CREATE TABLE IF NOT EXISTS ` + choice.monthChoice + `_` + input.yearChoice + `leadsandsales(
+                connection.query(`CREATE TABLE IF NOT EXISTS ` + choice.monthChoice + `_` + input.yearChoice + `_leadsandsales(
                     departments VARCHAR(10) NOT NULL,
                     dept_weekly_goals INT(3) NOT NULL,
                     week_one_dept_leads INT(15),
@@ -289,14 +289,34 @@ function addMonth() {
                     week_three_dept_leads INT(15),
                     week_four_dept_leads INT(15),
                     made_goals VARCHAR(5),
-	                exceeds_goals VARCHAR(5))`, )
+	                exceeds_goals VARCHAR(5))`, function(err, result) {
+                        if (err) throw err;
+
+                        if (result) {
+                            const departments = ['D21/22', 'D23/59', 'D24', 'D25', 'D26', 'D27', 'D28', 'D29', 'D30', 'D01'];
+
+                            for (let i = 0; i < departments.length; i++) {
+                                connection.query(`INSERT INTO ` + choice.monthChoice + `_` + input.yearChoice + `_leadsandsales (departments)
+                                VALUES (` + departments[i] + `);`);
+                            }
+
+                            console.log("Month added!\n");
+
+                            mainMenu();
+                        }
+                        else {
+                            console.log("There was a error in creating the month, please try again.");
+
+                            addMonth();
+                        }
+                    })
             } 
             else {
                 addMonth();
             }
         })
     })
-}
+};
 
 function mainMenu() {
     inquirer.prompt([
@@ -415,5 +435,8 @@ function mainMenu() {
         else if (option.menuOptions === "Add Month") {
             addMonth();
         }
+        else if (option.menuOptions === "Exit") {
+            connection.end();
+        }
     })
-}
+};
