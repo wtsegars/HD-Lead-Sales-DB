@@ -279,7 +279,17 @@ function addMonth() {
              }
         ]).then(function(confirm) {
             if (confirm.choiceConfirm === "Yes") {
+                console.log("Creating month...\n");
 
+                connection.query(`CREATE TABLE IF NOT EXISTS ` + choice.monthChoice + `_` + input.yearChoice + `leadsandsales(
+                    departments VARCHAR(10) NOT NULL,
+                    dept_weekly_goals INT(3) NOT NULL,
+                    week_one_dept_leads INT(15),
+                    week_two_dept_leads INT(15),
+                    week_three_dept_leads INT(15),
+                    week_four_dept_leads INT(15),
+                    made_goals VARCHAR(5),
+	                exceeds_goals VARCHAR(5))`, )
             } 
             else {
                 addMonth();
