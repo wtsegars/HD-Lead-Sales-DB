@@ -9,7 +9,7 @@ const connection = mysql.createConnection({
     user: "root",
     password: "root",
     socketPath: "/Applications/MAMP/tmp/mysql/mysql.sock",
-    database: "hd_hdleadssalesdb"
+    database: "hd_leadssalesdb"
 });
 
 connection.connect(function(err) {
@@ -17,6 +17,8 @@ connection.connect(function(err) {
     console.log("Connected as ID " + connection.threadId);
     startApp();
 });
+
+let currentMonth;
 
 function startApp() {
     inquirer.prompt([
@@ -255,6 +257,10 @@ function updateLead() {
     })
 };
 
+function selectMonth() {
+
+};
+
 function addMonth() {
     inquirer.prompt([
         {
@@ -324,7 +330,7 @@ function mainMenu() {
             type: 'list',
             name: 'menuOptions',
             message: 'Choose from the following options:',
-            choices: ["Show Current Lead Status for the Store", "Show Current Lead Status by Department", "Update Lead Goal by Department", "Update Actual Leads by Department", "Add Month", "Exit"]
+            choices: ["Show Current Lead Status for the Store", "Show Current Lead Status by Department", "Update Lead Goal by Department", "Update Actual Leads by Department", "Select Month", "Add Month", "Exit"]
         }
     ]).then(function(option) {
         if (option.menuOptions === "Show Current Lead Status for the Store") {
@@ -431,6 +437,9 @@ function mainMenu() {
         }
         else if (option.menuOptions === "Update Actual Leads by Department") {
             updateLead();
+        }
+        else if (option.menuOptions === "Select Month") {
+            selectMonth();
         }
         else if (option.menuOptions === "Add Month") {
             addMonth();
