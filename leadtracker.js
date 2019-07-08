@@ -18,7 +18,7 @@ connection.connect(function(err) {
     startApp();
 });
 
-let currentMonth;
+let monthSelection;
 
 function startApp() {
     inquirer.prompt([
@@ -145,7 +145,7 @@ function updateGoal() {
             type: 'list',
             name: 'deptGoal',
             message: 'Select the Department you would like to Update:',
-            list: ["D21/22", "D23/59", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D01"]
+            list: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
         },
         {
             type: 'input',
@@ -153,7 +153,9 @@ function updateGoal() {
             message: 'What would you like to change the Lead Goal to?'
         }
     ]).then(function(input) {
-        connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = ?", [input.deptGoal], function(err, data) {
+        selectMonth();
+
+        connection.query("SELECT * FROM " + monthSelection + " WHERE departments = ?", [input.deptGoal], function(err, data) {
             if (err) throw err;
 
             if (data[0].departments) {
@@ -176,7 +178,7 @@ function updateLead() {
             type: 'list',
             name: 'deptLead',
             message: 'Select the Department you would like to Update:',
-            list: ["D21/22", "D23/59", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D01"]
+            list: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
         },
         {
             type: 'list',
@@ -190,8 +192,10 @@ function updateLead() {
             message: 'What would you like to update the Lead to?'
         }
     ]).then(function(select, input) {
+        selectMonth();
+
         if (select.week === "Week1") {
-            connection.query("SELECT week_one_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead], function(err, data) {
+            connection.query("SELECT week_one_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
                 if (err) throw err;
 
                 if (data[0].departments) {
@@ -207,7 +211,7 @@ function updateLead() {
             })
         }
         else if (select.week === "Week2") {
-            connection.query("SELECT week_two_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead], function(err, data) {
+            connection.query("SELECT week_two_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
                 if (err) throw err;
 
                 if (data[0].departments) {
@@ -223,7 +227,7 @@ function updateLead() {
             })
         }
         else if (select.week === "Week3") {
-            connection.query("SELECT week_three_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.deptLead], function(err, data) {
+            connection.query("SELECT week_three_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
                 if (err) throw err;
 
                 if (data[0].departments) {
@@ -239,7 +243,7 @@ function updateLead() {
             })
         }
         else if (select.week === "Week4") {
-            connection.query("SELECT week_three_dept_leads FROM hd_leadssalesdb WHERE departments = ?", [input.spetLead], function(err, data) {
+            connection.query("SELECT week_three_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.spetLead], function(err, data) {
                 if (err) throw err;
 
                 if (data[0].departments) {
@@ -255,10 +259,6 @@ function updateLead() {
             })
         }
     })
-};
-
-function selectMonth() {
-
 };
 
 function addMonth() {
@@ -299,7 +299,7 @@ function addMonth() {
                         if (err) throw err;
 
                         if (result) {
-                            const departments = ['D21/22', 'D23/59', 'D24', 'D25', 'D26', 'D27', 'D28', 'D29', 'D30', 'D01'];
+                            const departments = ['D21/22', 'D23/59', 'D24', 'D25', 'D26/85', 'D27', 'D28', 'D29/70', 'D30', "D31/94", "D42", "D78", "D93/38", "D90/96", 'D01'];
 
                             for (let i = 0; i < departments.length; i++) {
                                 connection.query(`INSERT INTO ` + choice.monthChoice + `_` + input.yearChoice + `_leadsandsales (departments)
@@ -324,17 +324,61 @@ function addMonth() {
     })
 };
 
+function selectMonth() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'monthSelection',
+            message: 'What month would you like to see?',
+            choices: ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        },
+        {
+            type: 'input',
+            name: 'yearInput',
+            message: 'Please enter the year you would like to use:'
+        }
+    ]).then(function(select, input) {
+        connection.query("SELECT * FROM " + select.monthSelection + "_" + input.yearInput + "_leadsandsales", function(err, res) {
+            if (err) {
+                console.log("Error, the month and/or year you input does not exist");
+
+                inquirer.prompt([
+                    {
+                        type: 'checkbox',
+                        name: 'errChoice',
+                        message: 'Would you like to add this as a new month?',
+                        choices: ["Yes", "No"],
+                        default: "Yes"
+                    }
+                ]).then(function(select) {
+                    if (select.errChoice === "Yes") {
+                        addMonth();
+                    }
+                    else if (select.errChoice === "No") {
+                        mainMenu();
+                    }
+                });
+            }
+            else {
+                monthSelection = select.monthSelection + "_" + input.yearInput + "_leadsandsales";
+            }
+        });
+    });
+};
+
 function mainMenu() {
     inquirer.prompt([
         {
             type: 'list',
             name: 'menuOptions',
             message: 'Choose from the following options:',
-            choices: ["Show Current Lead Status for the Store", "Show Current Lead Status by Department", "Update Lead Goal by Department", "Update Actual Leads by Department", "Select Month", "Add Month", "Exit"]
+            choices: ["Show Current Lead Status for the Store", "Show Current Lead Status by Department", "Update Lead Goal by Department", "Update Actual Leads by Department", "Add Month", "Exit"]
         }
     ]).then(function(option) {
         if (option.menuOptions === "Show Current Lead Status for the Store") {
-            connection.query("SELECT departments, dept_weekly_goals, week_one_dept_leads, week_two_dept_leads, week_three_dept_leads, week_four_dept_leads, made_goals, exceeds_goals FROM hd_leadssalesdb", function(res, err) {
+            selectMonth();
+
+            connection.query("SELECT * FROM " + monthSelection + "", function(res, err) {
                 if (err) throw err;
 
                 console.table(res);
@@ -347,11 +391,13 @@ function mainMenu() {
                     type: 'list',
                     name: 'deptOptions',
                     message: 'Which Department would you like to see?',
-                    list: ["D21/22", "D23/59", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D01"]
+                    list: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
                 }
             ]).then(function(choice) {
+                selectMonth();
+
                 if (choice.deptOptions === "D21/22") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D21/22", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D21/22", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -359,7 +405,7 @@ function mainMenu() {
                     });
                 }
                 else if (choice.deptOptions === "D23/59") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D23/59", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D23/59", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -367,7 +413,7 @@ function mainMenu() {
                     });
                 }
                 else if (choice.deptOptions === "D24") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D24", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D24", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -375,15 +421,15 @@ function mainMenu() {
                     });
                 }
                 else if (choice.deptOptions === "D25") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D25", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D25", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
                         mainMenu();
                     });
                 }
-                else if (choice.deptOptions === "D26") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D26", function(res, err) {
+                else if (choice.deptOptions === "D26/85") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D26", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -391,7 +437,7 @@ function mainMenu() {
                     });
                 }
                 else if (choice.deptOptions === "D27") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D27", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D27", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -399,15 +445,15 @@ function mainMenu() {
                     });
                 }
                 else if (choice.deptOptions === "D28") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D28", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D28", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
                         mainMenu();
                     });
                 }
-                else if (choice.deptOptions === "D29") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D29", function(res, err) {
+                else if (choice.deptOptions === "D29/70") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D29", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -415,7 +461,47 @@ function mainMenu() {
                     });
                 }
                 else if (choice.deptOptions === "D30") {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D30", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D30", function(res, err) {
+                        if (err) throw err;
+
+                        console.table(res);
+                        mainMenu();
+                    });
+                }
+                else if (choice.deptOptions === "D31/94") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D31/94", function(res, err) {
+                        if (err) throw err;
+
+                        console.table(res);
+                        mainMenu();
+                    });
+                }
+                else if (choice.deptOptions === "D42") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D42", function(res, err) {
+                        if (err) throw err;
+
+                        console.table(res);
+                        mainMenu();
+                    });
+                }
+                else if (choice.deptOptions === "D78") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D78", function(res, err) {
+                        if (err) throw err;
+
+                        console.table(res);
+                        mainMenu();
+                    });
+                }
+                else if (choice.deptOptions === "D93/38") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D93/38", function(res, err) {
+                        if (err) throw err;
+
+                        console.table(res);
+                        mainMenu();
+                    });
+                }
+                else if (choice.deptOptions === "D90/96") {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D90/96", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -423,7 +509,7 @@ function mainMenu() {
                     });
                 }
                 else {
-                    connection.query("SELECT * FROM hd_leadssalesdb WHERE departments = D01", function(res, err) {
+                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D01", function(res, err) {
                         if (err) throw err;
 
                         console.table(res);
@@ -437,9 +523,6 @@ function mainMenu() {
         }
         else if (option.menuOptions === "Update Actual Leads by Department") {
             updateLead();
-        }
-        else if (option.menuOptions === "Select Month") {
-            selectMonth();
         }
         else if (option.menuOptions === "Add Month") {
             addMonth();
