@@ -51,7 +51,7 @@ function startApp() {
 
 function finalUpdate(input, data) {
     console.log("Updating goal...\n");
-    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+    connection.query("UPDATE " + monthSelection + " SET ? WHERE ?", [
         {
             department_weekly_goals: input.updateGoal
         },
@@ -69,7 +69,7 @@ function finalUpdate(input, data) {
 
 function finalLeadUpdateWeek1(select, input) {
     console.log("Updating lead ...\n");
-    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+    connection.query("UPDATE " + monthSelection + " SET ? WHERE ?", [
         {
             week_one_dept_leads: select.deptLead
         },
@@ -87,7 +87,7 @@ function finalLeadUpdateWeek1(select, input) {
 
 function finalLeadUpdateWeek2(select, input) {
     console.log("Updating lead ...\n");
-    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+    connection.query("UPDATE " + monthSelection + " SET ? WHERE ?", [
         {
             week_two_dept_leads: select.deptLead
         },
@@ -105,7 +105,7 @@ function finalLeadUpdateWeek2(select, input) {
 
 function finalLeadUpdateWeek3(select, input) {
     console.log("Updating lead ...\n");
-    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?", [
+    connection.query("UPDATE " + monthSelection + " SET ? WHERE ?", [
         {
             week_three_dept_leads: select.deptLead
         },
@@ -123,7 +123,7 @@ function finalLeadUpdateWeek3(select, input) {
 
 function finalLeadUpdateWeek4(select, input) {
     console.log("Updating lead ...\n");
-    connection.query("UPDATE july_2019_leadsandsales SET ? WHERE ?",  [
+    connection.query("UPDATE " + monthSelection + " SET ? WHERE ?",  [
         {
             week_four_dept_leads: select.deptLead
         },
