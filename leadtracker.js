@@ -337,8 +337,8 @@ function selectMonth() {
             name: 'yearInput',
             message: 'Please enter the year you would like to use:'
         }
-    ]).then(function(select, input) {
-        connection.query("SELECT * FROM " + select.monthSelection + "_" + input.yearInput + "_leadsandsales", function(err, res) {
+    ]).then(function(select) {
+        connection.query("SELECT * FROM " + select.monthSelection + "_" + select.yearInput + "_leadsandsales", function(err, res) {
             if (err) {
                 console.log("Error, the month and/or year you input does not exist");
 
@@ -360,7 +360,7 @@ function selectMonth() {
                 });
             }
             else {
-                monthSelection = select.monthSelection + "_" + input.yearInput + "_leadsandsales";
+                monthSelection = select.monthSelection + "_" + select.yearInput + "_leadsandsales";
             }
         });
     });
@@ -376,13 +376,52 @@ function mainMenu() {
         }
     ]).then(function(option) {
         if (option.menuOptions === "Show Current Lead Status for the Store") {
-            selectMonth();
-
-            connection.query("SELECT * FROM " + monthSelection + "", function(res, err) {
-                if (err) throw err;
-
-                console.table(res);
-                mainMenu();
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'monthSelection',
+                    message: 'What month would you like to see?',
+                    choices: ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+                },
+                {
+                    type: 'input',
+                    name: 'yearInput',
+                    message: 'Please enter the year you would like to use:'
+                }
+            ]).then(function(select) {
+                connection.query("SELECT * FROM " + select.monthSelection + "_" + select.yearInput + "_leadsandsales", function(err, res) {
+                    if (err) {
+                        console.log("Error, the month and/or year you input does not exist");
+        
+                        inquirer.prompt([
+                            {
+                                type: 'checkbox',
+                                name: 'errChoice',
+                                message: 'Would you like to add this as a new month?',
+                                choices: ["Yes", "No"],
+                                default: "Yes"
+                            }
+                        ]).then(function(select) {
+                            if (select.errChoice === "Yes") {
+                                addMonth();
+                            }
+                            else if (select.errChoice === "No") {
+                                mainMenu();
+                            }
+                        });
+                    }
+                    else {
+                        monthSelection = select.monthSelection + "_" + select.yearInput + "_leadsandsales";
+                    }
+                });
+            }).then(function() {
+                console.log(JSON.stringify(monthSelection));
+                connection.query("SELECT * FROM " + monthSelection + "", function(res, err) {
+                    if (err) throw err;
+    
+                    console.table(res);
+                    mainMenu();
+                })
             })
         }
         else if (option.menuOptions === "Show Current Lead Status by Department") {
