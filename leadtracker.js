@@ -18,7 +18,7 @@ connection.connect(function(err) {
     startApp();
 });
 
-let monthSelection;
+let monthSelection = "";
 
 function startApp() {
     inquirer.prompt([
@@ -389,7 +389,10 @@ function mainMenu() {
                     message: 'Please enter the year you would like to use:'
                 }
             ]).then(function(select) {
+                console.log(select.monthSelection);
+                console.log(select.yearInput);
                 connection.query("SELECT * FROM " + select.monthSelection + "_" + select.yearInput + "_leadsandsales", function(err, res) {
+                    console.log(monthSelection);
                     if (err) {
                         console.log("Error, the month and/or year you input does not exist");
         
@@ -415,7 +418,6 @@ function mainMenu() {
                     }
                 });
             }).then(function() {
-                console.log(JSON.stringify(monthSelection));
                 connection.query("SELECT * FROM " + monthSelection + "", function(res, err) {
                     if (err) throw err;
     
