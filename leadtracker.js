@@ -361,6 +361,8 @@ function selectMonth() {
             }
             else {
                 monthSelection = select.monthSelection + "_" + select.yearInput + "_leadsandsales";
+
+                mainMenu();
             }
         });
     });
@@ -392,7 +394,7 @@ function mainMenu() {
                 console.log(select.monthSelection);
                 console.log(select.yearInput);
                 connection.query("SELECT * FROM " + select.monthSelection + "_" + select.yearInput + "_leadsandsales", function(err, res) {
-                    console.log(monthSelection);
+                    console.table(res);
                     if (err) {
                         console.log("Error, the month and/or year you input does not exist");
         
@@ -415,148 +417,67 @@ function mainMenu() {
                     }
                     else {
                         monthSelection = select.monthSelection + "_" + select.yearInput + "_leadsandsales";
+                        console.log(monthSelection);
+                        mainMenu();
                     }
                 });
-            }).then(function() {
-                connection.query("SELECT * FROM " + monthSelection + "", function(res, err) {
-                    if (err) throw err;
-    
-                    console.table(res);
-                    mainMenu();
-                })
             })
         }
         else if (option.menuOptions === "Show Current Lead Status by Department") {
             inquirer.prompt([
                 {
                     type: 'list',
+                    name: 'monthSelection',
+                    message: 'What month would you like to see?',
+                    choices: ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+                },
+                {
+                    type: 'input',
+                    name: 'yearInput',
+                    message: 'Please enter the year you would like to use:'
+                },
+                {
+                    type: 'list',
                     name: 'deptOptions',
                     message: 'Which Department would you like to see?',
-                    list: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
+                    choices: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
                 }
             ]).then(function(choice) {
-                selectMonth();
+                connection.query("SELECT * FROM " + choice.monthSelection + "_" + choice.yearInput + "_leadsandsales", function(err, res) {
+                    if (err) {
+                        console.log("Error, the month and/or year you input does not exist");
+        
+                        inquirer.prompt([
+                            {
+                                type: 'checkbox',
+                                name: 'errChoice',
+                                message: 'Would you like to add this as a new month?',
+                                choices: ["Yes", "No"],
+                                default: "Yes"
+                            }
+                        ]).then(function(select) {
+                            if (select.errChoice === "Yes") {
+                                addMonth();
+                            }
+                            else if (select.errChoice === "No") {
+                                mainMenu();
+                            }
+                        });
+                    }
+                    else {
+                        monthSelection = choice.monthSelection + "_" + choice.yearInput + "_leadsandsales";
+                        console.log(monthSelection);
+                        connection.query("SELECT * FROM " + monthSelection + " WHERE departments = '" + choice.deptOptions + "'", function(err, res) {
+                            if (err) throw err;
 
-                if (choice.deptOptions === "D21/22") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D21/22", function(res, err) {
-                        if (err) throw err;
+                            else {
+                                console.table(res);
 
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D23/59") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D23/59", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D24") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D24", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D25") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D25", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D26/85") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D26", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D27") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D27", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D28") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D28", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D29/70") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D29", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D30") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D30", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D31/94") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D31/94", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D42") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D42", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D78") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D78", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D93/38") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D93/38", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else if (choice.deptOptions === "D90/96") {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D90/96", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    });
-                }
-                else {
-                    connection.query("SELECT * FROM " + monthSelection + " WHERE departments = D01", function(res, err) {
-                        if (err) throw err;
-
-                        console.table(res);
-                        mainMenu();
-                    })
-                }
+                                mainMenu();
+                            }
+                        })
+                    }
+                })
             })
         }
         else if (option.menuOptions === "Update Lead Goal by Department") {
