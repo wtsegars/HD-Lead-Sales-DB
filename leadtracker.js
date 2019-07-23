@@ -176,88 +176,156 @@ function updateLead() {
     inquirer.prompt([
         {
             type: 'list',
+            name: 'monthSelection',
+            message: 'What month would you like to see?',
+            choices: ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        },
+        {
+            type: 'input',
+            name: 'yearInput',
+            message: 'Please enter the year you would like to use:'
+        },
+        {
+            type: 'list',
             name: 'deptLead',
             message: 'Select the Department you would like to Update:',
-            list: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
+            choices: ["D21/22", "D23/59", "D24", "D25", "D26/85", "D27", "D28", "D29/70", "D30", "D31/94", "D42", "D78", "D93/38", "D90/96", "D01"]
         },
         {
             type: 'list',
             name: 'week',
             message: 'Which week would you like to update?',
-            list: ["Week1", "Week2", "Week3", "Week4"]
+            choices: ["Week1", "Week2", "Week3", "Week4"]
         },
         {
             type: 'input',
             name: 'updateLead',
             message: 'What would you like to update the Lead to?'
         }
-    ]).then(function(select, input) {
-        selectMonth();
+    ]).then(function(select) {
+        connection.query("SELECT * FROM " + select.monthSelection + "_" + select.yearInput + "_leadsandsales", function(err, res) {
+            if (err) {
+                console.log("Error, the month and/or year you input does not exist");
 
-        if (select.week === "Week1") {
-            connection.query("SELECT week_one_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
-                if (err) throw err;
-
-                if (data[0].departments) {
-                    if (!Number(input.updateGoal)) {
-                        console.log("The number that you entered in invalid.");
-
-                        updateLead();
+                inquirer.prompt([
+                    {
+                        type: 'checkbox',
+                        name: 'errChoice',
+                        message: 'Would you like to add this as a new month?',
+                        choices: ["Yes", "No"],
+                        default: "Yes"
                     }
-                    else {
-                        finalLeadUpdateWeek1(select, input);
+                ]).then(function (select) {
+                    if (select.errChoice === "Yes") {
+                        addMonth();
                     }
+                    else if (select.errChoice === "No") {
+                        mainMenu();
+                    }
+                });
+            }
+            else {
+                monthSelection = select.monthSelection + "_" + select.yearInput + "_leadsandsales";
+
+                let weekSelect = "";
+
+                if (select.week === "Week1"){
+                    weekSelect = "week_one_dept_leads";
                 }
-            })
-        }
-        else if (select.week === "Week2") {
-            connection.query("SELECT week_two_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
-                if (err) throw err;
-
-                if (data[0].departments) {
-                    if (!Number(input.updateGoal)) {
-                        console.log("The number that you entered in invalid.");
-
-                        updateLead();
-                    }
-                    else {
-                        finalLeadUpdateWeek2(select, input);
-                    }
+                else if (select.week === "Week2"){
+                    weekSelect = "week_two_dept_leads";
                 }
-            })
-        }
-        else if (select.week === "Week3") {
-            connection.query("SELECT week_three_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
-                if (err) throw err;
-
-                if (data[0].departments) {
-                    if (!Number(input.updateGoal)) {
-                        console.log("The number that you entered in invalid.");
-
-                        updateLead();
-                    }
-                    else {
-                        finalLeadUpdateWeek3(select, input);
-                    }
+                else if (select.week === "Week3"){
+                    weekSelect = "week_three_dept_leads";
                 }
-            })
-        }
-        else if (select.week === "Week4") {
-            connection.query("SELECT week_three_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.spetLead], function(err, data) {
-                if (err) throw err;
-
-                if (data[0].departments) {
-                    if (!Number(input.updateGoal)) {
-                        console.log("The number that you entered in invalid.");
-
-                        updateLead();
-                    }
-                    else {
-                        finalLeadUpdateWeek4(select, input);
-                    }
+                else {
+                    weekSelect = "week_four_dept_leads";
                 }
-            })
-        }
+                
+                console.log("Updating lead ...\n");
+
+                connection.query("SELECT " + weekSelect + " FROM " + monthSelection + " WHERE departments = '" + select.deptLead + "'", function(err) {
+                    if (err) throw err;
+
+                    else {
+                        connection.query("UPDATE " + monthSelection + " SET " + weekSelect + " = '" + select.updateLead + "' WHERE departments = '" + select.deptLead + "'", function(err, data) {
+                            if (err) throw err;
+        
+                            else {
+                                console.log("Lead Updated!\n");
+        
+                                mainMenu();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        // if (select.week === "Week1") {
+        //     connection.query("SELECT week_one_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
+        //         if (err) throw err;
+
+        //         if (data[0].departments) {
+        //             if (!Number(input.updateGoal)) {
+        //                 console.log("The number that you entered in invalid.");
+
+        //                 updateLead();
+        //             }
+        //             else {
+        //                 finalLeadUpdateWeek1(select, input);
+        //             }
+        //         }
+        //     })
+        // }
+        // else if (select.week === "Week2") {
+        //     connection.query("SELECT week_two_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
+        //         if (err) throw err;
+
+        //         if (data[0].departments) {
+        //             if (!Number(input.updateGoal)) {
+        //                 console.log("The number that you entered in invalid.");
+
+        //                 updateLead();
+        //             }
+        //             else {
+        //                 finalLeadUpdateWeek2(select, input);
+        //             }
+        //         }
+        //     })
+        // }
+        // else if (select.week === "Week3") {
+        //     connection.query("SELECT week_three_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.deptLead], function(err, data) {
+        //         if (err) throw err;
+
+        //         if (data[0].departments) {
+        //             if (!Number(input.updateGoal)) {
+        //                 console.log("The number that you entered in invalid.");
+
+        //                 updateLead();
+        //             }
+        //             else {
+        //                 finalLeadUpdateWeek3(select, input);
+        //             }
+        //         }
+        //     })
+        // }
+        // else if (select.week === "Week4") {
+        //     connection.query("SELECT week_three_dept_leads FROM " + monthSelection + " WHERE departments = ?", [input.spetLead], function(err, data) {
+        //         if (err) throw err;
+
+        //         if (data[0].departments) {
+        //             if (!Number(input.updateGoal)) {
+        //                 console.log("The number that you entered in invalid.");
+
+        //                 updateLead();
+        //             }
+        //             else {
+        //                 finalLeadUpdateWeek4(select, input);
+        //             }
+        //         }
+        //     })
+        // }
     })
 };
 
