@@ -6,7 +6,7 @@ USE hd_leadssalesdb;
 
 CREATE TABLE july_2019_leadsandsales(
 	departments VARCHAR(10) NOT NULL,
-    dept_weekly_goals INT(3) NOT NULL,
+    dept_weekly_goals INT(3),
     week_one_dept_leads INT(15),
     week_two_dept_leads INT(15),
     week_three_dept_leads INT(15),
