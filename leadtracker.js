@@ -275,45 +275,41 @@ function addMonth() {
     })
 };
 
-function selectMonth() {
+function deleteMonth() {
     inquirer.prompt([
         {
             type: 'list',
             name: 'monthSelection',
-            message: 'What month would you like to see?',
+            message: 'What month would you like to remove',
             choices: ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
         },
         {
             type: 'input',
             name: 'yearInput',
-            message: 'Please enter the year you would like to use:'
+            message: 'Please enter the year you would like to remove:'
         }
-    ]).then(function(select) {
-        connection.query("SELECT * FROM " + select.monthSelection + "_" + select.yearInput + "_leadsandsales", function(err, res) {
-            if (err) {
-                console.log("Error, the month and/or year you input does not exist");
+    ]).then(function(choice) {
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'confirmDelete',
+                message: 'Are you sure you want to delete' + choice.monthSelection + ' of the year ' + choice.yearInput + '?',
+                choices: ["Yes", "No"],
+                default: "Yes"
+            }
+        ]).then(function(option) {
+            if (option.confirmDelete === "Yes") {
+                console.log("Removing Table from Database...\n");
 
-                inquirer.prompt([
-                    {
-                        type: 'checkbox',
-                        name: 'errChoice',
-                        message: 'Would you like to add this as a new month?',
-                        choices: ["Yes", "No"],
-                        default: "Yes"
-                    }
-                ]).then(function(select) {
-                    if (select.errChoice === "Yes") {
-                        addMonth();
-                    }
-                    else if (select.errChoice === "No") {
+                connection.query("DROP TABLE " + choice.monthSelection + "_" + choice.yearInput + "_leadsandsales", function(err) {
+                    if (err) throw err;
+
+                    else {
+                        console.log("Table Sucessfully Removed.\n");
+
                         mainMenu();
                     }
                 });
-            }
-            else {
-                monthSelection = select.monthSelection + "_" + select.yearInput + "_leadsandsales";
-
-                mainMenu();
             }
         });
     });
@@ -325,7 +321,7 @@ function mainMenu() {
             type: 'list',
             name: 'menuOptions',
             message: 'Choose from the following options:',
-            choices: ["Show Current Lead Status for the Store", "Show Current Lead Status by Department", "Update Lead Goal by Department", "Update Actual Leads by Department", "Add Month", "Exit"]
+            choices: ["Show Current Lead Status for the Store", "Show Current Lead Status by Department", "Update Lead Goal by Department", "Update Actual Leads by Department", "Add Month", "Delete Month", "Exit"]
         }
     ]).then(function(option) {
         if (option.menuOptions === "Show Current Lead Status for the Store") {
@@ -439,6 +435,9 @@ function mainMenu() {
         }
         else if (option.menuOptions === "Add Month") {
             addMonth();
+        }
+        else if (option.menuOptions === "Delete Month") {
+            deleteMonth();
         }
         else if (option.menuOptions === "Exit") {
             connection.end();
